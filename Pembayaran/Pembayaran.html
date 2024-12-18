@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Halaman Pembayaran</title>
+</head>
+<body class="bg-gray-100">
+
+  <!-- Container Utama -->
+  <div class="max-w-4xl mx-auto p-6 mt-6 bg-white shadow-md rounded-lg">
+
+    <!-- Judul Halaman -->
+    <h2 class="text-2xl font-bold text-gray-900 mb-4">Halaman Pembayaran</h2>
+
+    <!-- Daftar Produk -->
+    <div id="product-list" class="space-y-4">
+      <!-- Produk akan ditampilkan di sini -->
+    </div>
+
+    <!-- Total Pembayaran -->
+    <div class="mt-6 text-right text-lg font-semibold" id="total-payment">
+      Total Pembayaran: $0
+    </div>
+
+    <!-- Pilih Metode Pembayaran -->
+    <div class="mt-6">
+      <h3 class="text-lg font-semibold mb-2">Pilih Metode Pembayaran</h3>
+      <div class="space-y-3">
+        <div>
+          <input type="radio" name="payment-method" id="credit-card" class="h-5 w-5 text-indigo-600 border-gray-300" />
+          <label for="credit-card" class="ml-2 text-gray-700">Kartu Kredit/Debit</label>
+        </div>
+        <div>
+          <input type="radio" name="payment-method" id="paypal" class="h-5 w-5 text-indigo-600 border-gray-300" />
+          <label for="paypal" class="ml-2 text-gray-700">PayPal</label>
+        </div>
+        <div>
+          <input type="radio" name="payment-method" id="bank-transfer" class="h-5 w-5 text-indigo-600 border-gray-300" />
+          <label for="bank-transfer" class="ml-2 text-gray-700">Transfer Bank</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tombol Bayar -->
+    <button class="w-full bg-blue-600 text-white py-2 mt-6 rounded hover:bg-blue-700" id="pay-button">
+      Bayar Sekarang
+    </button>
+  </div>
+
+  <!-- Script JavaScript -->
+  <script>
+    const productList = document.getElementById('product-list');
+    const totalPayment = document.getElementById('total-payment');
+    const payButton = document.getElementById('pay-button');
+
+    // Ambil data keranjang dari localStorage
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+    // Render detail produk di halaman pembayaran
+    function renderCartDetails() {
+      let totalHargaKeseluruhan = 0;
+
+      // Kosongkan konten sebelumnya
+      productList.innerHTML = '';
+
+      cart.forEach(item => {
+        const productDiv = document.createElement('div');
+        productDiv.className = 'flex justify-between border-b pb-2';
+
+        // Isi setiap produk
+        productDiv.innerHTML = `
+          <div>
+            <p class="text-gray-800 font-semibold">${item.name}</p>
+            <p class="text-gray-600 text-sm">x${item.quantity}</p>
+          </div>
+          <p class="text-gray-800">$${(item.price * item.quantity).toFixed(2)}</p>
+        `;
+
+        productList.appendChild(productDiv);
+
+        totalHargaKeseluruhan += item.price * item.quantity;
+      });
+
+      // Tampilkan total pembayaran
+      totalPayment.textContent = `Total Pembayaran: $${totalHargaKeseluruhan.toFixed(2)}`;
+    }
+
+    // Event Listener untuk tombol bayar
+    payButton.addEventListener('click', () => {
+      const selectedMethod = document.querySelector('input[name="payment-method"]:checked');
+
+      if (!selectedMethod) {
+        alert('Silakan pilih metode pembayaran!');
+        return;
+      }
+
+      alert(`Pembayaran berhasil menggunakan metode: ${selectedMethod.nextElementSibling.textContent}`);
+      localStorage.removeItem('cart'); // Bersihkan keranjang setelah pembayaran
+      window.location.href = 'index.html'; // Redirect ke halaman utama (jika ada)
+    });
+
+    // Render detail produk saat halaman dimuat
+    renderCartDetails();
+  </script>
+</body>
+</html>

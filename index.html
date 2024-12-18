@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Rak dan Keranjang</title>
+</head>
+<body class="bg-gray-100">
+
+  <!-- Container Utama -->
+  <div class="flex h-screen">
+
+    <!-- Sidebar (Keranjang Pembayaran Tetap Statis) -->
+    <div class="w-1/4 bg-white p-4 shadow-md">
+      <h2 class="text-lg font-semibold mb-4">Keranjang</h2>
+      <ul id="cart" class="space-y-2 text-gray-700">
+        <li class="italic text-gray-400">Keranjang kosong...</li>
+      </ul>
+      <div id="total" class="mt-4 font-semibold text-gray-800">Total Harga: $0</div>
+
+      <!-- Tombol Checkout -->
+      <button id="checkout-btn" class="w-full bg-green-500 text-white py-2 mt-4 rounded hover:bg-green-600">
+        Checkout
+      </button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="w-3/4 flex flex-col h-screen overflow-y-auto">
+
+      <!-- Navbar -->
+      <header class="bg-white shadow-md sticky top-0 z-10">
+        <div class="mx-auto px-4 py-4">
+          <div class="flex items-center justify-between">
+            <!-- Bagian Kiri: Judul dan Deskripsi -->
+            <div>
+              <h1 class="text-2xl font-bold text-gray-900">Selamat datang User</h1>
+              <p class="mt-1 text-sm text-gray-500">
+                Tambahkan produk dan kendalikan belanja kamu!
+              </p>
+            </div>
+
+            <!-- Bagian Kanan: Akun Pengguna -->
+            <div class="flex items-center gap-4">
+              <button class="flex items-center space-x-2 text-gray-700 hover:text-gray-900">
+                <img class="w-8 h-8 rounded-full" src="https://via.placeholder.com/150" alt="User Icon">
+                <span class="font-semibold">User</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Produk -->
+      <div class="p-6">
+        <h2 class="text-xl font-semibold mb-4">Daftar Produk</h2>
+
+        <!-- Grid Produk -->
+        <div id="product-container" class="grid grid-cols-3 gap-6"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Script JavaScript -->
+  <script>
+    const productContainer = document.getElementById('product-container');
+    const cart = [];
+    const cartList = document.getElementById('cart');
+    const totalElement = document.getElementById('total');
+    const checkoutBtn = document.getElementById('checkout-btn');
+
+    // Data Produk
+    const products = [
+      { name: "Produk 1", price: 10, color: "bg-blue-100", textColor: "text-blue-500" },
+      { name: "Produk 2", price: 15, color: "bg-green-100", textColor: "text-green-500" },
+      { name: "Produk 3", price: 20, color: "bg-yellow-100", textColor: "text-yellow-500" },
+      { name: "Produk 4", price: 12, color: "bg-red-100", textColor: "text-red-500" },
+      { name: "Produk 5", price: 18, color: "bg-purple-100", textColor: "text-purple-500" },
+      { name: "Produk 6", price: 22, color: "bg-pink-100", textColor: "text-pink-500" },
+      { name: "Produk 7", price: 25, color: "bg-gray-100", textColor: "text-gray-500" },
+      { name: "Produk 8", price: 30, color: "bg-orange-100", textColor: "text-orange-500" },
+      { name: "Produk 9", price: 28, color: "bg-teal-100", textColor: "text-teal-500" },
+      { name: "Produk 10", price: 35, color: "bg-indigo-100", textColor: "text-indigo-500" },
+    ];
+
+    // Generate Produk dalam Grid
+    products.forEach((product, index) => {
+      const productCard = document.createElement('div');
+      productCard.className = `bg-white shadow-md rounded-md text-center`;
+
+      productCard.innerHTML = `
+        <div class="w-full aspect-square mx-auto ${product.color} rounded flex items-center justify-center">
+          <span class="text-3xl font-bold ${product.textColor}">P${index + 1}</span>
+        </div>
+        <h3 class="text-lg font-semibold mt-2">${product.name}</h3>
+        <p class="text-gray-500 mb-2">Harga: $${product.price}</p>
+        <button 
+          class="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600 add-to-cart" 
+          data-name="${product.name}" data-price="${product.price}">
+          Tambah
+        </button>
+      `;
+
+      productContainer.appendChild(productCard);
+    });
+
+    // Fungsi untuk menambahkan produk ke keranjang
+    document.querySelectorAll('.add-to-cart').forEach(button => {
+      button.addEventListener('click', () => {
+        const productName = button.getAttribute('data-name');
+        const productPrice = parseFloat(button.getAttribute('data-price'));
+
+        // Cek apakah produk sudah ada di keranjang
+        const existingProduct = cart.find(item => item.name === productName);
+        if (existingProduct) {
+          existingProduct.quantity += 1; // Tambah jumlah produk
+          existingProduct.totalPrice += productPrice; // Tambah total harga
+        } else {
+          // Jika belum ada, tambahkan produk baru
+          cart.push({
+            name: productName,
+            price: productPrice,
+            quantity: 1,
+            totalPrice: productPrice
+          });
+        }
+
+        // Perbarui tampilan keranjang
+        renderCart();
+      });
+    });
+
+    function renderCart() {
+      cartList.innerHTML = ''; // Kosongkan keranjang sebelumnya
+      
+      let totalHarga = 0;
+
+      // Jika keranjang kosong
+      if (cart.length === 0) {
+        cartList.innerHTML = '<li class="italic text-gray-400">Keranjang kosong...</li>';
+        totalElement.textContent = 'Total Harga: $0';
+        return;
+      }
+
+      // Tampilkan setiap produk di keranjang
+      cart.forEach((item, index) => {
+        const listItem = document.createElement('li');
+        listItem.classList.add('flex', 'justify-between', 'items-center', 'p-2', 'bg-gray-50', 'rounded');
+        listItem.innerHTML = `
+          <span>${item.name} - ${item.quantity}x ($${item.totalPrice})</span>
+          <button class="text-red-500 hover:text-red-700 remove-item" data-index="${index}">Hapus</button>
+        `;
+        cartList.appendChild(listItem);
+
+        totalHarga += item.totalPrice;
+      });
+
+      // Tampilkan total harga
+      totalElement.textContent = `Total Harga: $${totalHarga}`;
+
+      // Tambahkan event listener untuk tombol hapus
+      document.querySelectorAll('.remove-item').forEach(button => {
+        button.addEventListener('click', () => {
+          const index = button.getAttribute('data-index');
+          cart.splice(index, 1); // Hapus produk dari array keranjang
+          renderCart(); // Perbarui tampilan keranjang
+        });
+      });
+    }
+
+    // Fungsi Checkout
+    checkoutBtn.addEventListener('click', () => {
+      // Simulasi berpindah halaman ke halaman pembayaran
+      window.location.href = "Pembayaran/pembayaran.html"; // Halaman Pembayaran
+    });
+
+    // Fungsi Checkout
+    checkoutBtn.addEventListener('click', () => {
+      if (cart.length === 0) {
+        alert('Keranjang masih kosong. Silakan tambahkan produk terlebih dahulu!');
+      return;
+    }
+
+    // Simpan keranjang ke localStorage sebelum pindah halaman
+      localStorage.setItem('cart', JSON.stringify(cart));
+
+    // Berpindah ke halaman pembayaran
+      window.location.href = "Pembayaran/pembayaran.html";
+    });
+  </script>
+</body>
+</html>
