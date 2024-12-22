@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Toko Online</title>
+  </head>
+  <body class="bg-gray-100">
+    <!-- Container Utama -->
+    <div class="flex h-screen">
+      <!-- Sidebar (Keranjang Pembayaran Tetap Statis) -->
+      <div class="w-1/4 bg-white p-4 shadow-md">
+        <h2 class="text-lg font-semibold mb-4">Keranjang</h2>
+        <ul id="cart" class="space-y-2 text-gray-700">
+          <li class="italic text-gray-400">Keranjang kosong...</li>
+        </ul>
+        <!-- <div id="total" class="mt-4 font-semibold text-gray-800">
+          Total Harga: Rp 0
+        </div> -->
+        <ul id="cart" class="list-none"></ul>
+        <p id="total" class="mt-4 font-semibold text-gray-800">Total Harga: Rp 0</p>
+
+        <!-- Tombol Checkout -->
+        <button id="checkout-btn"
+          class="w-full bg-green-500 text-white py-2 mt-4 rounded hover:bg-green-600 disabled:bg-gray-400"
+          disabled>
+          Checkout
+        </button>
+      </div>
+
+      <!-- Main Content -->
+      <div class="w-3/4 flex flex-col h-screen overflow-y-auto">
+        <!-- Navbar -->
+        <header class="bg-white shadow-md sticky top-0 z-10">
+          <div class="mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+              <!-- Bagian Kiri: Judul dan Deskripsi -->
+              <div>
+                <h1 class="text-2xl font-bold text-gray-900">
+                  Selamat datang User
+                </h1>
+                <p class="mt-1 text-sm text-gray-500">
+                  Tambahkan produk dan kendalikan belanja kamu!
+                </p>
+              </div>
+
+              <!-- Bagian Kanan: Akun Pengguna -->
+              <div class="flex items-center gap-4">
+                <button
+                  class="flex items-center space-x-2 text-gray-700 hover:text-gray-900"
+                >
+                  <img
+                    class="w-8 h-8 rounded-full"
+                    src="https://via.placeholder.com/150"
+                    alt="User Icon"
+                  />
+                  <span class="font-semibold">User</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <!-- Produk -->
+        <div class="p-6">
+          <h2 class="text-xl font-semibold mb-4">Daftar Produk</h2>
+
+          <!-- Grid Produk -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6">
+            <% users.forEach(user => { %>
+              <div class="border border-gray-300 rounded-lg shadow-md overflow-hidden bg-white">
+                <!-- Gambar Produk -->
+                <img
+                  src="/assets/<%= user.image_url %>"
+                  alt="<%= user.name %>"
+                  class="w-full h-48 object-cover"
+                />
+                
+                <!-- Informasi Produk -->
+                <div class="p-4">
+                  <h2 class="text-lg font-semibold text-gray-800"><%= user.name %></h2>
+                  <h3 class="text-gray-600 mt-2">Rp <%= user.price %></h3>
+
+                   <!-- Tombol Tambah ke Keranjang -->
+                  <button onclick="addToCart('<%= user.name %>', <%= user.price %>)" 
+                    class="bg-blue-500 text-white px-4 py-2 mt-2 rounded hover:bg-blue-600">
+                    Tambah ke Keranjang
+                  </button>
+                </div>
+              </div>
+            <% }) %>
+          </div>          
+        </div>
+      </div>
+    </div>
+  </body>
+  <script src="/script.js"></script>  
+</html>
